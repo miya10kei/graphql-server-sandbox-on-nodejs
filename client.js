@@ -1,17 +1,29 @@
-const fetch = require('node-fetch')
+const { request } = require('graphql-request')
 
-const query = '{totalUsers, totalPhotos}'
 const url = 'http://localhost:4000/graphql'
 
-const opts = {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ query })
+const query = `
+query listUsers {
+  allUsers {
+    name
+    avatar
+  }
 }
+`
+request(url, query)
+  .then(console.log)
+  .catch(console.err)
 
-fetch(url, opts)
-  .then(res => res.json())
+const mutation = `
+mutation populate($count: Int!) {
+  addFakeUsers(count: $count) {
+    githubLogin
+    name
+  }
+}
+`
+
+const variables = { count: 3 }
+request(url, mutation, variables)
   .then(console.log)
   .catch(console.err)
