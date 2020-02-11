@@ -49,22 +49,28 @@ require('dotenv').config()
 
 async function start() {
   const app = express()
-  const MONGO_DB = process.env.DB_HOST
-  const USER = process.env.DB_USER
-  const PASSWORD = process.env.DB_PASSWORD
-
-  const client = await MongoClient.connect(MONGO_DB, {
+  const client = await MongoClient.connect(process.env.DB_HOST, {
     auth: {
-      user: USER,
-      password: PASSWORD
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD
     },
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
   const db = client.db()
-  const context = { db }
-  const server = new ApolloServer({ typeDefs, resolvers, context })
+
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: async ({ req }) => {
+      const githubToken = req.headers.authorization
+      const currentUser = await db.collection('users').findOne({ githubToken })
+      return { db, currentUser }
+    }
+  })
+
   server.applyMiddleware({ app })
+
   app.get('/', (_, res) => res.end('Welcom to the PhotoShare API'))
   app.get('/playground', expressPloayground({ endpoint: '/graphql' }))
   // eslint-disable-next-line no-console

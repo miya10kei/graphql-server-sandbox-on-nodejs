@@ -1,4 +1,5 @@
 module.exports = {
+  me: (_, __, { currentUser }) => currentUser,
   totalPhotos: (_, __, { db }) => db.collection('photos').estimatedDocumentCount(),
   allPhotos: (_, __, { db }) =>
     db
