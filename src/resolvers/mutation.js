@@ -9,7 +9,7 @@ module.exports = {
       userID: currentUser.githubLogin,
       created: new Date()
     }
-    const { insertedIds } = await db.collection('photos').insert(newPhoto)
+    const { insertedIds } = await db.collection('photos').insertOne(newPhoto)
     newPhoto.id = insertedIds[0]
     return newPhoto
   },
@@ -41,7 +41,7 @@ module.exports = {
       avatar: result.picture.thumbnail,
       githubToken: result.login.sha1
     }))
-    await db.collection('users').insert(users)
+    await db.collection('users').insertMany(users)
     return users
   },
   async fakeUserAuth(_, { githubLogin }, { db }) {
